@@ -23,13 +23,6 @@
        -  frontend: 渲染與定義窗口，每個視窗定義 preload.js ，preload事先定義了向主進程發送資源請求的樣式，主體是 ipcRenderer.invoke
        -  interface: 用來定義前端調用資料的介面，也定義了 ipcMain.on，用來監聽 ipcRenderer.invoke 發來的請求
        -  backend: 主進程與實現介面定義的地方
-   4. 如何使用(windows): 
-      1. 執行 dist/work-assistant Setup 1.0.0.exe 以完成安裝
-      2. 桌面應該會有work-assistant的捷徑
-   5. 如果想要在開機時自動運行本程式，可以用以下方法:
-      1. 按下 Win + R 打开运行窗口。
-      2. 输入 shell:startup 并按下 enter。
-      3. 将想要开机启动的程序的快捷方式拖放到该文件夹中。
 
 ## Electron 介紹
    1.  簡介: Electron 是一個用於建立跨平台桌面應用程式的開源框架，由 GitHub 開發和維護。它基於 Node.js 和 Chromium，可以讓開發者使用 HTML、CSS 和 JavaScript 建立現代的桌面應用程式。
