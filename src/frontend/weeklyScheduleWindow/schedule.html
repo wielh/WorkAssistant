@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>備忘錄</title>
+  <style>
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f3f4f6;
+      font-family: Arial, sans-serif;
+    }
+    .cell {
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 16px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .table-style1 th, .table-style1 td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    .table-style1 th:nth-child(1), .table-style1 td:nth-child(1) {
+      width: 20%;
+    }
+    .table-style1 th:nth-child(2), .table-style1 td:nth-child(2) {
+      width: 20%;
+    }
+    .table-style1 th:nth-child(3), .table-style1 td:nth-child(3) {
+      width: 20%;
+    }
+    .table-style1 th:nth-child(4), .table-style1 td:nth-child(4) {
+      width: 20%;
+    }
+    .table-style1 th:nth-child(5), .table-style1 td:nth-child(4) {
+      width: 20%;
+    }
+
+    .table-style2 th, .table-style2 td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    .table-style2 th:nth-child(1), .table-style2 td:nth-child(1) {
+      width: 20%;
+    }
+    .table-style2 th:nth-child(2), .table-style2 td:nth-child(2) {
+      width: 20%;
+    }
+    .table-style2 th:nth-child(3), .table-style2 td:nth-child(3) {
+      width: 20%;
+    }
+    .table-style2 th:nth-child(4), .table-style2 td:nth-child(4) {
+      width: 20%;
+    }
+    .table-style2 th:nth-child(5), .table-style2 td:nth-child(4) {
+      width: 20%;
+    }
+
+    .changed {
+      color: red;
+    }
+
+    #create-button {
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">每周作息</h2>
+  <div id="tableContainerW"></div>
+
+  <script type="module">
+
+    const ActivityTypes = [{value:0, text: "休息"}, {value:1, text: "上班"}, {value:2, text: "下班"}]
+    const WeekdayTypes = [
+      {value:0, text: "Sunday"}, 
+      {value:1, text: "Monday"}, 
+      {value:2, text: "Tuesday"},
+      {value:3, text: "Wednesday"}, 
+      {value:4, text: "Thursday"}, 
+      {value:5, text: "Friday"},
+      {value:6, text: "Saturday"}, 
+      {value:7, text: "Weekday"}, 
+      {value:8, text: "Holiday"},
+    ]
+
+    function addTableChangedLinster(table) {
+      table.addEventListener('input', (event) => {
+        const cell = event.target;
+        if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
+          cell.classList.add('changed');
+        }
+      });
+    }
+
+    function newUpdateEvent(row, activitySelect, startTimeCell, endTimeCell) {
+      return async () => {
+        const success = await window.api.Update(row.id, row.dayOfWeek, activitySelect.value, startTimeCell.textContent, endTimeCell.textContent);
+        if(success) {
+          createWindow()
+        }
+      }
+    }
+
+    function newInsertEvent(WeekdaySelect,activitySelect,startTimeCell,endTimeCell) {
+      const event = async () => {
+        const memo = await window.api.InsertOne(WeekdaySelect.value, activitySelect.value, startTimeCell.textContent, endTimeCell.textContent);
+        console.log(memo)
+        if(memo) {
+          createWindow()
+        }
+      }
+
+      return event
+    }
+
+    function createRow(container,row) {
+      const newRow = document.createElement('tr');
+      const startTimeCell = document.createElement('td');
+      startTimeCell.textContent = row.startTime;
+      startTimeCell.contentEditable = true
+      newRow.appendChild(startTimeCell);
+    
+      const endTimeCell = document.createElement('td');
+      endTimeCell.textContent = row.endTime;
+      endTimeCell.contentEditable = true
+      newRow.appendChild(endTimeCell);
+
+      const activityCell = document.createElement('td');
+      const activitySelect = document.createElement("select");
+      ActivityTypes.forEach((ActivityType) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = ActivityType.value;
+        optionElement.textContent = ActivityType.text
+        activitySelect.appendChild(optionElement);
+      });
+      activitySelect.selectedIndex = row.ActivityType 
+      activityCell.appendChild(activitySelect)
+      newRow.appendChild(activityCell);
+
+      const updateCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = "update";
+      updateButton.addEventListener('click', newUpdateEvent(row, activitySelect, startTimeCell, endTimeCell));
+      updateCell.appendChild(updateButton);
+      newRow.appendChild(updateCell);
+
+      const deleteCell = document.createElement('td');
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = "delete";
+      deleteButton.addEventListener('click', async () => {
+        const success = await window.api.Delete(row.id);
+        if(success) {
+          newRow.remove();
+        }
+      });
+      deleteCell.appendChild(deleteButton);
+      newRow.appendChild(deleteCell);
+
+      container.appendChild(newRow);
+    }
+
+    function createInsertRow(container) {
+      const titleElement = document.createElement('div')
+      titleElement.textContent =`===================<Insert Weekly Schedule>===================`
+      titleElement.style.display = 'flex';           
+      titleElement.style.justifyContent = 'center';  
+      titleElement.style.alignItems = 'center';      
+      titleElement.style.fontSize = '18px';
+      titleElement.style.marginBottom = '20px';
+      container.appendChild(titleElement)
+
+      const table = document.createElement('table')
+      table.className = 'table-style2'
+      const newRow = document.createElement('tr');
+      const startTimeCell = document.createElement('td');
+      startTimeCell.textContent = '(HH:MM)';
+      startTimeCell.contentEditable = true
+      newRow.appendChild(startTimeCell);
+
+      const endTimeCell = document.createElement('td');
+      endTimeCell.textContent = '(HH:MM)';
+      endTimeCell.contentEditable = true
+      newRow.appendChild(endTimeCell);
+
+      const WeekdayCell = document.createElement('td');
+      const WeekdaySelect = document.createElement("select");
+      WeekdayTypes.forEach((w) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = w.value;
+        optionElement.textContent = w.text
+        WeekdaySelect.appendChild(optionElement);
+      });
+      WeekdayCell.appendChild(WeekdaySelect)
+      newRow.appendChild(WeekdayCell);
+    
+      const activityCell = document.createElement('td');
+      const activitySelect = document.createElement("select");
+      ActivityTypes.forEach((a) => {
+        const optionElement = document.createElement("option");
+        optionElement.value = a.value;
+        optionElement.textContent = a.text
+        activitySelect.appendChild(optionElement);
+      });
+      activityCell.appendChild(activitySelect)
+      newRow.appendChild(activityCell);
+
+      const insertCell = document.createElement('td');
+      const insertButton = document.createElement('button');
+      insertButton.textContent = "insert";
+      insertButton.addEventListener('click', newInsertEvent(WeekdaySelect,activitySelect,startTimeCell,endTimeCell));
+      insertCell.appendChild(insertButton);
+      newRow.appendChild(insertCell);
+      
+      table.appendChild(newRow);
+      addTableChangedLinster(table)
+      container.appendChild(table)
+    }
+
+    async function createWindow() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const container = document.getElementById('tableContainerW');
+      if (container == null) {
+        return
+      }
+      container.innerHTML = ''
+
+      const scheduleMap = await window.api.SelectAll();
+      const fragment = document.createDocumentFragment();
+      createInsertRow(fragment)
+      
+      scheduleMap.forEach((scheduleArray, title) => {
+        if (scheduleArray.length == 0) {
+          return
+        }
+        const titleElement = document.createElement('div')
+        titleElement.textContent =`===================${WeekdayTypes[scheduleArray[0].dayOfWeek].text}===================`
+        titleElement.style.display = 'flex';           
+        titleElement.style.justifyContent = 'center';  
+        titleElement.style.alignItems = 'center';      
+        titleElement.style.fontSize = '18px';
+        titleElement.style.marginBottom = '20px';
+        fragment.appendChild(titleElement)
+
+        const tableContainer = document.createElement('div')
+        const table = document.createElement('table')
+        table.className = 'table-style1'
+        scheduleArray.forEach((schedule) => {
+          createRow(table, schedule)
+        })
+        addTableChangedLinster(table)
+        tableContainer.append(table)
+        tableContainer.style.marginBottom = '20px';
+        fragment.appendChild(tableContainer);
+      })
+      container.appendChild(fragment);
+    }
+  
+    createWindow()
+  </script>
+
+</body>
+</html>

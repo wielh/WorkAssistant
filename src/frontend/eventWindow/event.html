@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab Example</title>
+  <style>
+
+    .tab-buttons {
+      display: flex;
+      cursor: pointer;
+      width: 100%;
+    }
+    .tab-button {
+      flex: 1;  
+      padding: 10px;
+      margin-right: 5px;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    .tab-button.active {
+      background-color: #ddd;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid black; 
+      padding: 8px; 
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    th:nth-child(1), td:nth-child(1) {
+      width: 15%;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      width: 15%;
+    }
+    th:nth-child(3), td:nth-child(3) {
+      width: 15%;
+    }
+    th:nth-child(4), td:nth-child(4) {
+      width: 35%;
+    }
+    th:nth-child(5), td:nth-child(5) {
+      width: 10%;
+    }
+    th:nth-child(6), td:nth-child(6) {
+      width: 10%;
+    }
+
+    .changed {
+      color: red;
+    }
+
+    #inputForm {
+      display: none;
+      margin-top: 20px;
+    }
+    #inputForm label, #inputForm input {
+      display: block;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tab-buttons" style="text-align: center;">
+    <div class="tab-button active" onclick="openTab('tab1')" >本日行程</div>
+    <div class="tab-button" onclick="openTab('tab2')">本周行程</div>
+    <div class="tab-button" onclick="openTab('tab3')">所有行程</div>
+    <div class="tab-button" id="addButton">新增行程</div>
+    <div class="tab-button" onclick="deleteHistory()">刪除歷史行程</div>
+  </div>
+
+  <div id="tab1" class="tab-content active">
+    <h2 style="text-align: center;">本日行程</h2>
+    <div>
+      <table id="todayTable">
+        <tbody id="todayTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <h2 style="text-align: center;">本周行程</h2>
+  </div>
+  
+  <div id="tab3" class="tab-content">
+    <h2 style="text-align: center;">所有行程</h2>
+    <div id="allTableContainer">
+      <table>
+        <tbody id="allTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const todayEventRowMap = new Map();
+    const thisWeekRowMap = new Map();
+    const allMap = new Map();
+
+    function openTab(tabId) {
+      const tabs = document.querySelectorAll('.tab-content');
+      tabs.forEach(tab => tab.classList.remove('active'));
+
+      const buttons = document.querySelectorAll('.tab-button');
+      buttons.forEach(button => button.classList.remove('active'));
+
+      document.getElementById(tabId).classList.add('active');
+      document.querySelector(`.tab-button[onclick="openTab('${tabId}')"]`).classList.add('active');
+    }
+
+    function newUpdateEvent(id, titleCell, contentCell) {
+      return async () => {
+        const success = await window.api.Update(id, titleCell.textContent, contentCell.textContent);
+        if(success) {
+          titleCell.classList.remove('changed')
+          contentCell.classList.remove('changed')
+        }
+      }
+    }
+
+    function createRow(container, row, currentMap) {
+      const newRow = document.createElement('tr');
+      const startDateCell = document.createElement('td');
+      startDateCell.textContent = row.startDate;
+      startDateCell.contentEditable = true
+      newRow.appendChild(startDateCell);
+
+      const endDateCell = document.createElement('td');
+      endDateCell.textContent = row.endDate;
+      endDateCell.contentEditable = true
+      newRow.appendChild(endDateCell);
+
+      const titleCell = document.createElement('td');
+      titleCell.textContent = row.title;
+      titleCell.contentEditable = true
+      newRow.appendChild(titleCell);
+    
+      const contentCell = document.createElement('td');
+      contentCell.textContent = row.content;
+      contentCell.contentEditable = true
+      newRow.appendChild(contentCell);
+
+      const updateCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = "update";
+      updateButton.addEventListener('click', newUpdateEvent(row.id, titleCell, contentCell));
+      updateCell.appendChild(updateButton);
+      newRow.appendChild(updateCell);
+
+      const deleteCell = document.createElement('td');
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = "delete";
+      deleteButton.addEventListener('click', async () => {
+        const success = await window.api.Delete(row.id);
+        if(success) {
+          if (todayEventRowMap.has(row.id)) {
+            todayEventRowMap.get(row.id).remove();
+          }
+
+          if (thisWeekRowMap.has(row.id)) {
+            thisWeekRowMap.get(row.id).remove();
+          }
+
+          if (allMap.has(row.id)) {
+            allMap.get(row.id).remove();
+          }
+        }
+      });
+      deleteCell.appendChild(deleteButton);
+      newRow.appendChild(deleteCell);
+
+      currentMap.set(row.id, newRow);
+      container.appendChild(newRow);
+    }
+
+    async function createTodayWindow() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const container = document.getElementById('todayTableBody');
+      if (container == null) {
+        return
+      }
+      container.innerHTML = ''
+
+      const events = await window.api.SelectNow();
+      const fragment = document.createDocumentFragment();
+      events.forEach((row) => {
+        createRow(fragment, row, todayEventRowMap)
+      })
+
+      container.appendChild(fragment);
+      const table = document.getElementById('todayTable');
+      table.addEventListener('input', (event) => {
+        const cell = event.target;
+        if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
+          cell.classList.add('changed');
+        }
+      });
+    }
+   
+    async function createAllWindow() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const container = document.getElementById('allTableBody');
+      if (container == null) {
+        return
+      }
+      container.innerHTML = ''
+
+      const events = await window.api.SelectAll();
+      const fragment = document.createDocumentFragment();
+      events.forEach((row) => {
+        createRow(fragment, row, allMap)
+      })
+
+      container.appendChild(fragment);
+      const table = document.getElementById('todayTable');
+      table.addEventListener('input', (event) => {
+        const cell = event.target;
+        if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
+          cell.classList.add('changed');
+        }
+      });
+    }
+
+    async function createThisWeekWindow() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const tab = document.getElementById('tab2');
+      if (tab == null) {
+        return
+      }
+      tab.innerHTML = ''
+
+      const rootContainter = document.createElement('div');
+      rootContainter.id = "rootContainter"
+
+      const title = document.createElement('h2')
+      title.textContent = "本周行程"
+      title.style = "text-align: center;"
+      rootContainter.appendChild(title)
+
+      const eventsInAWeek = await window.api.SelectThisWeek();
+      let index = 0
+      const today = new Date();
+
+      eventsInAWeek.forEach((events) => {
+        const nextDay = new Date(today);
+        nextDay.setDate(today.getDate() + index);
+        const formattedDate = nextDay.toISOString().split('T')[0];
+
+        const title  = document.createElement('div')
+        title.textContent =`===================${formattedDate}===================`
+        title.style.display = 'flex';           
+        title.style.justifyContent = 'center';  
+        title.style.alignItems = 'center';      
+        title.style.fontSize = '18px';
+        title.style.marginBottom = '20px';
+        rootContainter.appendChild(title)
+
+        const tableContainer = document.createElement('div')
+        const table = document.createElement('table')
+        events.forEach((event) => {
+          createRow(table, event, thisWeekRowMap)
+        })
+        tableContainer.append(table)
+        tableContainer.style.marginBottom = '20px';
+        rootContainter.appendChild(tableContainer);
+        index++
+      })
+
+      tab.appendChild(rootContainter)
+    }
+
+    async function createWindow() {
+      await createTodayWindow()
+      await createThisWeekWindow()
+      await createAllWindow()
+
+      const addDataButton = document.getElementById('addButton');
+      addDataButton.addEventListener('click', () => {
+        window.api.OpenInputWindow();
+      });
+    }
+   
+    async function deleteHistory() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const success = await window.api.DeleteHistory();
+      if (success) {
+        await createAllWindow()
+        alert("刪除兩周以前的行程成功")
+      } else {
+        alert("刪除兩周以前的行程失敗")
+      }
+    }
+
+    createWindow() 
+  </script>
+  
+</body>
+</html>

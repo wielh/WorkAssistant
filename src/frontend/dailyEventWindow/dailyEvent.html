@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日例行公事列表</title>
+  <style>
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f3f4f6;
+      font-family: Arial, sans-serif;
+    }
+    .cell {
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 16px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+    th, td {
+      border: 1px solid black; /* 邊框顏色與粗細 */
+      padding: 8px; /* 內距 */
+      text-align: left; /* 文字靠左 */
+    }
+    th {
+      background-color: #f2f2f2; /* 標題列背景色 */
+    }
+    th:nth-child(1), td:nth-child(1) {
+      width: 25%;
+    }
+    th:nth-child(2), td:nth-child(2) {
+      width: 55%;
+    }
+    th:nth-child(3), td:nth-child(3) {
+      width: 10%;
+    }
+    th:nth-child(4), td:nth-child(4) {
+      width: 10%;
+    }
+
+    .changed {
+      color: red;
+    }
+
+    #create-button {
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">每日例行公事</h2>
+  <div id="tableContainerW">
+    <table id="table">
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div id="buttonContainer">
+    <button id="create-button">新增行程</button>
+  </div>
+
+  <script type="module">
+
+    function newUpdateEvent(id, titleCell, contentCell) {
+      return async () => {
+        const success = await window.api.Update(id, titleCell.textContent, contentCell.textContent);
+        if(success) {
+          titleCell.classList.remove('changed')
+          contentCell.classList.remove('changed')
+        }
+      }
+    }
+
+    function newInsertEvent(titleCell, contentCell, button) {
+      const event = async () => {
+        const dailyEvent = await window.api.InsertOne(titleCell.textContent, contentCell.textContent);
+        if(dailyEvent) {
+          button.textContent = 'update'
+          titleCell.classList.remove('changed')
+          contentCell.classList.remove('changed')
+          button.removeEventListener('click', event);
+          button.addEventListener('click', newUpdateEvent(dailyEvent.id, titleCell, contentCell));
+        }
+      }
+
+      return event
+    }
+
+    function createNewRow() {
+      const container = document.getElementById('tableBody');
+      if (container == null) {
+        return
+      }
+
+      const newRow = document.createElement('tr');
+      const titleCell = document.createElement('td');
+      titleCell.textContent = '(empty)';
+      titleCell.contentEditable = true
+      titleCell.classList.add('changed');
+      newRow.appendChild(titleCell);
+    
+      const contentCell = document.createElement('td');
+      contentCell.textContent = '(empty)';
+      contentCell.contentEditable = true
+      contentCell.classList.add('changed');
+      newRow.appendChild(contentCell);
+
+      const insertCell = document.createElement('td');
+      const insertButton = document.createElement('button');
+      const deleteCell = document.createElement('td');
+      const deleteButton = document.createElement('button');
+
+      insertButton.textContent = "insert";
+      insertButton.classList.add('update-row');
+      insertButton.addEventListener('click', newInsertEvent(titleCell, contentCell, insertButton));
+      insertCell.appendChild(insertButton);
+      newRow.appendChild(insertCell);
+
+      deleteButton.textContent = "delete";
+      deleteButton.classList.add('delete-row');
+      deleteButton.addEventListener('click', async () => {
+        newRow.remove();
+      });
+      deleteCell.appendChild(deleteButton);
+      newRow.appendChild(deleteCell);
+
+      container.appendChild(newRow);
+    }
+
+    function createRow(container,row) {
+      const newRow = document.createElement('tr');
+      const titleCell = document.createElement('td');
+      titleCell.textContent = row.title;
+      titleCell.contentEditable = true
+      newRow.appendChild(titleCell);
+    
+      const contentCell = document.createElement('td');
+      contentCell.textContent = row.content;
+      contentCell.contentEditable = true
+      newRow.appendChild(contentCell);
+
+      const updateCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = "update";
+      updateButton.addEventListener('click', newUpdateEvent(row.id, titleCell, contentCell));
+      updateCell.appendChild(updateButton);
+      newRow.appendChild(updateCell);
+
+      const deleteCell = document.createElement('td');
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = "delete";
+      deleteButton.addEventListener('click', async () => {
+        const success = await window.api.Delete(row.id);
+        if(success) {
+          newRow.remove();
+        }
+      });
+      deleteCell.appendChild(deleteButton);
+      newRow.appendChild(deleteCell);
+
+      container.appendChild(newRow);
+    }
+
+    async function createWindow() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const container = document.getElementById('tableBody');
+      if (container == null) {
+        return
+      }
+      
+      const DailyEvents = await window.api.SelectAll();
+      const fragment = document.createDocumentFragment();
+      DailyEvents.forEach((row) => {
+        createRow(fragment, row)
+      })
+      container.appendChild(fragment);
+      
+      const table = document.getElementById('table');
+      table.addEventListener('input', (event) => {
+        const cell = event.target;
+        if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
+          cell.classList.add('changed');
+        }
+      });
+    }
+
+    createWindow()
+    document.getElementById("create-button").addEventListener('click', async () => {
+      createNewRow()
+    });
+
+  </script>
+
+</body>
+</html>

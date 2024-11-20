@@ -1,0 +1,41 @@
+.titlebar {
+    width: 100%;
+    height: 40px;
+    -webkit-app-region: drag;
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    font-size: 14px;
+}
+
+/* 可拖动窗口内容区域 */
+.content {
+    width: 100%; /* 设置宽度百分比 */
+    height: 100%; /* 设置高度百分比 */
+    background-color: lightcoral;
+    padding: 5px;
+    color: #333;
+    background-color: #fff;
+    text-align: center;
+}
+
+.gif {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 保持比例并填充 */
+}
+
+.button-container {
+    display: flex;
+    width: 100%;
+}
+
+.button-container button {
+    flex: 1;               
+    padding: 15px;
+    margin: 5px;           
+    font-size: 16px;
+    cursor: pointer;
+}

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>備忘錄</title>
+  <style>
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f3f4f6;
+      font-family: Arial, sans-serif;
+    }
+    .cell {
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 16px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .table-style1 th, .table-style1 td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    .table-style1 th:nth-child(1), .table-style1 td:nth-child(1) {
+      width: 15%;
+    }
+    .table-style1 th:nth-child(2), .table-style1 td:nth-child(2) {
+      width: 55%;
+    }
+    .table-style1 th:nth-child(3), .table-style1 td:nth-child(3) {
+      width: 15%;
+    }
+    .table-style1 th:nth-child(4), .table-style1 td:nth-child(4) {
+      width: 15%;
+    }
+
+    .table-style2 th, .table-style2 td {
+      padding: 8px;
+      text-align: left;
+    }
+
+    .table-style2 th:nth-child(1), .table-style2 td:nth-child(1) {
+      width: 15%;
+    }
+    .table-style2 th:nth-child(2), .table-style2 td:nth-child(2) {
+      width: 15%;
+    }
+    .table-style2 th:nth-child(3), .table-style2 td:nth-child(3) {
+      width: 55%;
+    }
+    .table-style2 th:nth-child(4), .table-style2 td:nth-child(4) {
+      width: 15%;
+    }
+
+    .changed {
+      color: red;
+    }
+
+    #create-button {
+      justify-content: center;
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      display: block;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">備忘錄</h2>
+  <div id="tableContainerW"></div>
+  <div id="buttonContainer">
+    <button id="create-button">新增行程</button>
+  </div>
+
+  <script type="module">
+
+    function addTableChangedLinster(table) {
+      table.addEventListener('input', (event) => {
+        const cell = event.target;
+        if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
+          cell.classList.add('changed');
+        }
+      });
+    }
+
+    function newUpdateEvent(id, subTitleCell, contentCell) {
+      return async () => {
+        const success = await window.api.Update(id, subTitleCell.textContent, contentCell.textContent);
+        if(success) {
+          subTitleCell.classList.remove('changed')
+          contentCell.classList.remove('changed')
+        }
+      }
+    }
+
+    function newInsertEvent(titleCell, subTitleCell, contentCell, button) {
+      const event = async () => {
+        const memo = await window.api.InsertOne(titleCell.textContent, subTitleCell.textContent, contentCell.textContent);
+        if(memo) {
+          createWindow()
+        }
+      }
+
+      return event
+    }
+
+    function createRow(container,row) {
+      const newRow = document.createElement('tr');
+      const subTitleCell = document.createElement('td');
+      subTitleCell.textContent = row.subtitle;
+      subTitleCell.contentEditable = true
+      newRow.appendChild(subTitleCell);
+    
+      const contentCell = document.createElement('td');
+      contentCell.textContent = row.content;
+      contentCell.contentEditable = true
+      newRow.appendChild(contentCell);
+
+      const updateCell = document.createElement('td');
+      const updateButton = document.createElement('button');
+      updateButton.textContent = "update";
+      updateButton.addEventListener('click', newUpdateEvent(row.id, subTitleCell, contentCell));
+      updateCell.appendChild(updateButton);
+      newRow.appendChild(updateCell);
+
+      const deleteCell = document.createElement('td');
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = "delete";
+      deleteButton.addEventListener('click', async () => {
+        const success = await window.api.Delete(row.id);
+        if(success) {
+          newRow.remove();
+        }
+      });
+      deleteCell.appendChild(deleteButton);
+      newRow.appendChild(deleteCell);
+
+      container.appendChild(newRow);
+    }
+
+    function createInsertRow(container) {
+
+      const titleElement = document.createElement('div')
+      titleElement.textContent =`===================<Insert Memo>===================`
+      titleElement.style.display = 'flex';           
+      titleElement.style.justifyContent = 'center';  
+      titleElement.style.alignItems = 'center';      
+      titleElement.style.fontSize = '18px';
+      titleElement.style.marginBottom = '20px';
+      container.appendChild(titleElement)
+
+      const table = document.createElement('table')
+      table.className = 'table-style2'
+      const newRow = document.createElement('tr');
+      const titleCell = document.createElement('td');
+      titleCell.textContent = '(empty)';
+      titleCell.contentEditable = true
+      newRow.appendChild(titleCell);
+
+      const subTitleCell = document.createElement('td');
+      subTitleCell.textContent = '(empty)';
+      subTitleCell.contentEditable = true
+      newRow.appendChild(subTitleCell);
+    
+      const contentCell = document.createElement('td');
+      contentCell.textContent = '(empty)';
+      contentCell.contentEditable = true
+      newRow.appendChild(contentCell);
+
+      const insertCell = document.createElement('td');
+      const insertButton = document.createElement('button');
+      insertButton.textContent = "insert";
+      insertButton.addEventListener('click', newInsertEvent(titleCell, subTitleCell, contentCell));
+      insertCell.appendChild(insertButton);
+      newRow.appendChild(insertCell);
+      table.appendChild(newRow);
+      addTableChangedLinster(table)
+      container.appendChild(table)
+    }
+
+    async function createWindow() {
+      if (!window.api) {
+        console.error('Electron API not available');
+        return
+      }
+
+      const container = document.getElementById('tableContainerW');
+      if (container == null) {
+        return
+      }
+      container.innerHTML = ''
+
+      const memoMap = await window.api.SelectAll();
+      const fragment = document.createDocumentFragment();
+      createInsertRow(fragment)
+      memoMap.forEach((memoArray, title) => {
+        const titleElement = document.createElement('div')
+        titleElement.textContent =`===================${title}===================`
+        titleElement.style.display = 'flex';           
+        titleElement.style.justifyContent = 'center';  
+        titleElement.style.alignItems = 'center';      
+        titleElement.style.fontSize = '18px';
+        titleElement.style.marginBottom = '20px';
+        fragment.appendChild(titleElement)
+
+        const tableContainer = document.createElement('div')
+        const table = document.createElement('table')
+        table.className = 'table-style1'
+        memoArray.forEach((memo) => {
+          createRow(table, memo)
+        })
+        addTableChangedLinster(table)
+        tableContainer.append(table)
+        tableContainer.style.marginBottom = '20px';
+        fragment.appendChild(tableContainer);
+      })
+      container.appendChild(fragment);
+    }
+  
+    createWindow()
+  </script>
+
+</body>
+</html>

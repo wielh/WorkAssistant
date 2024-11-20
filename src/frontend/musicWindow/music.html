@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Control</title>
+  <style>
+    .button-container {
+      display: flex;
+      width: 100%;
+    }
+
+    .button-container button {
+      flex: 1;               
+      padding: 15px;
+      margin: 5px;           
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    div {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: center; /* 水平居中 */
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align: center;">音樂播放器</h2>
+  <div class="volume-container" style="text-align: center;">
+    <h3 id="currentSong" style="text-align: center;"></h3>
+  </div>
+  <div style="text-align: center; display: flex; width: 80%; align-items: center;">
+    <label style="flex: 0 0 150px; text-align: right;">音樂資料夾: </label>
+    <input type="text" id="musicRootDirInput" style="flex: 1; margin-left: 10px;">
+    <button id="musicRootDirSubmit" style="margin-left: 30px;">刷新</button>
+  </div>
+  <div class="volume-container" style="text-align: center;">
+      <span class="volume-label">音量:</span>
+      <input id="volumeBar" type="range" min="0" max="1" step="0.01" value="0.5" style="width: 80%; height: 10px;">
+      <span id="volumeValue">50%</span>
+  </div>
+  <div class="button-container">
+    <button id="playPauseButton">Pasue</button>
+    <button id="toggle-random">模式: Random</button>
+    <button id="toggle-loop">模式: Loop</button>
+  </div>
+
+  <audio id="audio-player"></audio>
+
+  <script type="module">
+
+    const playPauseButton = document.getElementById('playPauseButton');
+    const toggleRandomButton = document.getElementById('toggle-random');
+    const toggleLoopButton = document.getElementById('toggle-loop');
+    const audioPlayer = document.getElementById('audio-player');
+
+    const volumeBar = document.getElementById("volumeBar");
+    const currentSongText = document.getElementById("currentSong");
+
+    const musicRootDirButton = document.getElementById('musicRootDirSubmit');
+    const musicRootDirInput = document.getElementById('musicRootDirInput');
+    
+    let pause = false
+    let musicMap = new Map();
+    let musicArray = []
+    let currentTrackIndex = 0
+    let audioPlayerState = "loop"
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    
+    async function refreshMusicMap() {
+      musicMap = await window.api.SelectAll();
+      musicArray = []
+      musicMap.forEach((array, title) => {
+        musicArray.push(...array)
+      })
+    }
+
+    function loadTrack(index) {
+      if(musicArray.length>index) {
+        const music = musicArray[index]
+        audioPlayer.src = music.fullPath
+        currentSongText.textContent = `正在播放: [${music.type}] ${music.name}`
+        audioPlayer.play();
+      }
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const randomIndex = Math.floor(Math.random() * (i + 1));
+            [array[i], array[randomIndex]] = [array[randomIndex], array[i]];
+        }
+        return array;
+    }
+
+    async function nextSong() {
+      await sleep(100);
+      if (audioPlayerState == "loop") {
+        currentTrackIndex = (currentTrackIndex + 1) % musicArray.length;
+        loadTrack(currentTrackIndex);
+      } else if (audioPlayerState == "random") {
+        currentTrackIndex =  Math.floor(Math.random() * musicArray.length());
+        loadTrack(currentTrackIndex)
+      }
+    }
+
+    audioPlayer.addEventListener('ended', nextSong)
+
+    volumeBar.addEventListener("input", (event) => {
+      const volume = event.target.value;
+      audioPlayer.volume = volume;
+      volumeValue.textContent = Math.round(volume * 100) + "%";
+    });
+
+    playPauseButton.addEventListener('click', () => {
+      if (pause) {
+        pause = false
+        audioPlayer.play()
+        playPauseButton.textContent = "pause"
+      } else {
+        pause = true
+        audioPlayer.pause()
+        playPauseButton.textContent = "play"
+      }
+    });
+
+    toggleLoopButton.addEventListener('click', () => {
+      audioPlayer.pause()
+      audioPlayerState = "loop"
+      audioPlayer.currentTime = 0;
+      nextSong()
+      audioPlayer.play()
+    });
+
+    toggleRandomButton.addEventListener('click', () => {
+      audioPlayer.pause()
+      audioPlayerState = "random"
+      audioPlayer.currentTime = 0;
+      nextSong()
+    });
+
+    musicRootDirButton.addEventListener('click', async () => {
+      await window.api.SetRootDir(musicRootDirInput.value)
+      refreshMusicMap()
+    })
+
+    await refreshMusicMap()
+    const rootDir = await window.api.GetRootDir()
+    musicRootDirInput.value = rootDir
+    shuffleArray(musicArray)
+    loadTrack(currentTrackIndex);
+
+  </script>
+</body>
+</html>

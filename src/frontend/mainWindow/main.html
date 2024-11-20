@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draggable Window</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <div class="titlebar"></div>
+  <div class="content">
+
+    <img class="gif" id="gifDisplay" alt="Draggable GIF" height="300">
+  </div>
+
+  <div class="button-container">
+    <button id="openDailyEventButton">每日例行</button>
+    <button id="openEventButton">行事曆</button>
+    <button id="openMemoButton">備忘錄</button>
+    <button id="openMusicButton">音樂</button>
+    <button id="openScheduleButton">每周作息</button>
+  </div>
+
+  <script>
+    async function updateGif() {
+      const now = new Date();
+      const min = now.getMinutes();
+      let gifUrl = await window.api.GetMainUIGIFPath();
+      /*
+      if (min%2==0) {
+        gifUrl = '../../../img/example1.gif';
+      } else {
+        gifUrl = '../../../img/example2.gif';
+      }*/
+
+      const gifElement = document.getElementById("gifDisplay");
+      if (gifElement != null) {
+        gifElement.src = gifUrl;
+      }
+    }
+
+    updateGif();
+    setInterval(updateGif, 6000);
+
+    document.getElementById('openDailyEventButton').addEventListener('click', window.api.openDailyEvent);
+    document.getElementById('openEventButton').addEventListener('click', window.api.openEvent);
+    document.getElementById('openMemoButton').addEventListener('click', window.api.openMemo);
+    document.getElementById('openMusicButton').addEventListener('click', window.api.openMusic);
+    document.getElementById('openScheduleButton').addEventListener('click', window.api.openSchedule);
+  </script>
+</body>
+</html>
