@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Repository } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Repository, Index } from 'typeorm';
 
 @Entity()
 export class DailyEvent {
@@ -6,6 +6,7 @@ export class DailyEvent {
   id!: number;
 
   @Column()
+  @Index() 
   title!: string;
   
   @Column()
@@ -26,15 +27,18 @@ export class Event {
   id!: number;
 
   @Column()
+  @Index() 
   title!: string;
   
   @Column()
   content!: string;
 
   @Column({ type: 'date' })
+  @Index() 
   startDate !: Date;
 
   @Column({ type: 'date' })
+  @Index() 
   endDate !: Date;
 }
 
@@ -50,6 +54,7 @@ export interface EventOperatorInterface {
 }
 
 @Entity()
+@Index("IDX_title_subtitle", ["title", "subtitle"]) 
 export class Memo {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -149,12 +154,15 @@ export class WeeklySchedule {
       default: WeekdayType.Monday
     }
   )
+  @Index() 
   dayOfWeek !:  WeekdayType;
   
   @Column({ type: 'time' })
+  @Index() 
   startTime!: string;
 
   @Column({ type: 'time' })
+  @Index() 
   endTime!: string;
 
   @Column(
