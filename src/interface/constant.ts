@@ -1,7 +1,4 @@
 export const SELECT_LIMIT = 30
-import path from 'path';
-
-
 
 export namespace ipcName {
   export enum Main {

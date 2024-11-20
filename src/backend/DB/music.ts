@@ -9,11 +9,16 @@ export class MusicOperator implements MusicOperatorInterface {
     rootDir :string 
     repo: Repository<MusicSetting>
 
-    constructor() {
+    constructor(rootDir: string) {
         this.repo = AppDataSource.getRepository(MusicSetting);
-        this.rootDir = ''
+        this.rootDir = rootDir
     }
 
+    static async new(): Promise<MusicOperator> {
+       const rootDir = this.getDefaultFolder()
+       return new MusicOperator(rootDir)
+    }
+    
     static getDefaultFolder(): string {
         return path.join(process.cwd(), "music")
     }
@@ -38,7 +43,7 @@ export class MusicOperator implements MusicOperatorInterface {
     }
 
     public async GetRootFolder(): Promise<string> {
-        if (this.rootDir != '') {
+        if (this.rootDir !== '') {
             return this.rootDir
         }
 
@@ -56,9 +61,7 @@ export class MusicOperator implements MusicOperatorInterface {
     }
 
     public async SelectAll(): Promise<Map<string, Music[]>> {
-        console.log("old:", this.rootDir)
         this.rootDir = await this.GetRootFolder()
-        console.log("new:", this.rootDir)
         let musicMap = new Map<string, Music[]>()
         const folders = fs.readdirSync(this.rootDir)
         folders.forEach((folder) => {

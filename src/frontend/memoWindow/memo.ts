@@ -1,9 +1,9 @@
 import { BrowserWindow } from 'electron'
 import path from 'path';
 
-let memoWindow: BrowserWindow | null
+let memoWindow: BrowserWindow
 export function createMemoWindow() {
-  if (memoWindow!=null) {
+  if ( memoWindow && !memoWindow.isDestroyed()) {
     memoWindow.focus(); 
     return
   }
@@ -19,8 +19,5 @@ export function createMemoWindow() {
   });
 
   memoWindow.loadFile(path.join(__dirname, 'memo.html'));
-  memoWindow.on('closed', () => {
-    memoWindow = null;
-  })
   //memoWindow.webContents.openDevTools();
 }

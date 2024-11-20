@@ -4,7 +4,7 @@ import path from 'path';
 let controlWindow: BrowserWindow;
 
 export function createControlWindow() {
-  if (controlWindow && controlWindow!=null) {
+  if (controlWindow && !controlWindow.isDestroyed()) {
     controlWindow.focus(); 
     return
   }
@@ -20,6 +20,7 @@ export function createControlWindow() {
   });
 
   controlWindow.loadFile(path.join(__dirname, 'music.html'));
+  controlWindow.webContents.openDevTools();
 }
 
 

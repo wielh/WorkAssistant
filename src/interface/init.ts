@@ -39,7 +39,7 @@ export async function InitDataSource() {
     eventOI = new EventOperator()
     dailyEventOI = new DailyEventOperator()
     weeklyScheduleOI = new WeeklyScheduleOperator()
-    musicOI = new MusicOperator()
+    musicOI = await MusicOperator.new()
 }
 
 export function ICPMain() {
