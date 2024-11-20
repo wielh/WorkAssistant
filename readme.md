@@ -20,9 +20,9 @@
    1. dist: 打包工具生成的安裝檔案
    2. src: source code
    3.  程式架構
-       -  frontend: 渲染與定義窗口，每個視窗定義 preload.js ，preload事先定義了向主進程發送資源請求的樣式，主體是 ipcRenderer.invoke
-       -  interface: 用來定義前端調用資料的介面，也定義了 ipcMain.on，用來監聽 ipcRenderer.invoke 發來的請求
-       -  backend: 主進程與實現介面定義的地方
+       -  frontend: 渲染與定義窗口，每個視窗定義 preload.js ，preload事先定義了向主進程發送資源請求的樣式，其主體是 ipcRenderer.invoke。
+       -  interface: 用來定義前端調用資料的介面，也定義了 ipcMain.on，用來監聽 ipcRenderer.invoke 發來的請求。
+       -  backend: 主進程與實現介面定義的地方。
 
 ## Electron 介紹
    1.  簡介: Electron 是一個用於建立跨平台桌面應用程式的開源框架，由 GitHub 開發和維護。它基於 Node.js 和 Chromium，可以讓開發者使用 HTML、CSS 和 JavaScript 建立現代的桌面應用程式。
@@ -38,8 +38,8 @@
    1. 功能:
        1. 根據時段，播放不同的 GIF
        2. 精靈新增對話框
+       3. 串接 chatGPT API 或本地部屬
    2. 前端:
-       1. 整理在各個 html 的 css 檔案
-       2. 用 ts 重寫在各個 html 的 script
-       3. 為 html 的各個元件新增自訂樣式
-       4. 用 vue，react 或 angular 當作前端框架
+       1. 用 ts 重寫在各個 html 的 script
+       2. 為 html 的各個元件新增自訂樣式
+       3. 用 vue，react 或 angular 當作前端框架

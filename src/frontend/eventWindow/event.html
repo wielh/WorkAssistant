@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../common.css">
   <title>Tab Example</title>
   <style>
 
@@ -35,19 +36,6 @@
       display: block;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-    th, td {
-      border: 1px solid black; 
-      padding: 8px; 
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
     th:nth-child(1), td:nth-child(1) {
       width: 15%;
     }
@@ -81,7 +69,7 @@
     }
   </style>
 </head>
-<body>
+<body class="body1">
 
   <div class="tab-buttons" style="text-align: center;">
     <div class="tab-button active" onclick="openTab('tab1')" >本日行程</div>
@@ -94,7 +82,7 @@
   <div id="tab1" class="tab-content active">
     <h2 style="text-align: center;">本日行程</h2>
     <div>
-      <table id="todayTable">
+      <table id="todayTable" class="table-style1">
         <tbody id="todayTableBody"></tbody>
       </table>
     </div>
@@ -107,7 +95,7 @@
   <div id="tab3" class="tab-content">
     <h2 style="text-align: center;">所有行程</h2>
     <div id="allTableContainer">
-      <table>
+      <table class="table-style1" id="allTable">
         <tbody id="allTableBody"></tbody>
       </table>
     </div>
@@ -241,7 +229,8 @@
       })
 
       container.appendChild(fragment);
-      const table = document.getElementById('todayTable');
+      const table = document.getElementById('allTable');
+      table.classList.add("table-style1")
       table.addEventListener('input', (event) => {
         const cell = event.target;
         if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
@@ -281,18 +270,22 @@
 
         const title  = document.createElement('div')
         title.textContent =`===================${formattedDate}===================`
-        title.style.display = 'flex';           
-        title.style.justifyContent = 'center';  
-        title.style.alignItems = 'center';      
-        title.style.fontSize = '18px';
-        title.style.marginBottom = '20px';
+        title.classList.add('title-style1')
         rootContainter.appendChild(title)
 
         const tableContainer = document.createElement('div')
         const table = document.createElement('table')
+        table.className = "table-style1"
         events.forEach((event) => {
           createRow(table, event, thisWeekRowMap)
         })
+        table.addEventListener('input', (event) => {
+          const cell = event.target;
+          if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
+            cell.classList.add('changed');
+          }
+        });
+
         tableContainer.append(table)
         tableContainer.style.marginBottom = '20px';
         rootContainter.appendChild(tableContainer);

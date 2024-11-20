@@ -20,7 +20,6 @@ export function createControlWindow() {
   });
 
   controlWindow.loadFile(path.join(__dirname, 'music.html'));
-  controlWindow.webContents.openDevTools();
 }
 
 

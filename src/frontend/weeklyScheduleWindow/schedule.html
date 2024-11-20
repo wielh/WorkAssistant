@@ -3,18 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../common.css">
   <title>備忘錄</title>
   <style>
 
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #f3f4f6;
-      font-family: Arial, sans-serif;
-    }
     .cell {
       padding: 10px;
       background-color: #ffffff;
@@ -23,65 +15,41 @@
       font-size: 16px;
     }
     
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-
-    th, td {
-      border: 1px solid black;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-
-    .table-style1 th, .table-style1 td {
-      padding: 8px;
-      text-align: left;
-    }
-
-    .table-style1 th:nth-child(1), .table-style1 td:nth-child(1) {
+    .table-width1 th:nth-child(1), .table-width1 td:nth-child(1) {
       width: 20%;
     }
-    .table-style1 th:nth-child(2), .table-style1 td:nth-child(2) {
+    .table-width1 th:nth-child(2), .table-width1 td:nth-child(2) {
       width: 20%;
     }
-    .table-style1 th:nth-child(3), .table-style1 td:nth-child(3) {
+    .table-width1 th:nth-child(3), .table-width1 td:nth-child(3) {
       width: 20%;
     }
-    .table-style1 th:nth-child(4), .table-style1 td:nth-child(4) {
+    .table-width1 th:nth-child(4), .table-width1 td:nth-child(4) {
       width: 20%;
     }
-    .table-style1 th:nth-child(5), .table-style1 td:nth-child(4) {
+    .table-width1 th:nth-child(5), .table-width1 td:nth-child(4) {
       width: 20%;
     }
 
-    .table-style2 th, .table-style2 td {
+    .table-width2 th, .width2 td {
       padding: 8px;
       text-align: left;
     }
 
-    .table-style2 th:nth-child(1), .table-style2 td:nth-child(1) {
+    .table-width2 th:nth-child(1), .table-width2 td:nth-child(1) {
       width: 20%;
     }
-    .table-style2 th:nth-child(2), .table-style2 td:nth-child(2) {
+    .table-width2 th:nth-child(2), .table-width2 td:nth-child(2) {
       width: 20%;
     }
-    .table-style2 th:nth-child(3), .table-style2 td:nth-child(3) {
+    .table-style2 th:nth-child(3), .table-width2 td:nth-child(3) {
       width: 20%;
     }
-    .table-style2 th:nth-child(4), .table-style2 td:nth-child(4) {
+    .table-width2 th:nth-child(4), .table-width2 td:nth-child(4) {
       width: 20%;
     }
-    .table-style2 th:nth-child(5), .table-style2 td:nth-child(4) {
+    .table-width2 th:nth-child(5), .table-width2 td:nth-child(4) {
       width: 20%;
-    }
-
-    .changed {
-      color: red;
     }
 
     #create-button {
@@ -99,7 +67,7 @@
     }
   </style>
 </head>
-<body>
+<body class="body1">
   <h2 style="text-align: center;">每周作息</h2>
   <div id="tableContainerW"></div>
 
@@ -205,7 +173,8 @@
       container.appendChild(titleElement)
 
       const table = document.createElement('table')
-      table.className = 'table-style2'
+      table.classList.add('table-style1')
+      table.classList.add('table-width2')
       const newRow = document.createElement('tr');
       const startTimeCell = document.createElement('td');
       startTimeCell.textContent = '(HH:MM)';
@@ -273,16 +242,13 @@
         }
         const titleElement = document.createElement('div')
         titleElement.textContent =`===================${WeekdayTypes[scheduleArray[0].dayOfWeek].text}===================`
-        titleElement.style.display = 'flex';           
-        titleElement.style.justifyContent = 'center';  
-        titleElement.style.alignItems = 'center';      
-        titleElement.style.fontSize = '18px';
-        titleElement.style.marginBottom = '20px';
+        titleElement.classList.add('title-style1')
         fragment.appendChild(titleElement)
 
         const tableContainer = document.createElement('div')
         const table = document.createElement('table')
-        table.className = 'table-style1'
+        table.classList.add('table-style1')
+        table.classList.add('table-width1')
         scheduleArray.forEach((schedule) => {
           createRow(table, schedule)
         })
