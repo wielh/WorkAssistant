@@ -10,10 +10,9 @@
     font-size: 14px;
 }
 
-/* 可拖动窗口内容区域 */
 .content {
-    width: 100%; /* 设置宽度百分比 */
-    height: 100%; /* 设置高度百分比 */
+    width: 100%; 
+    height: 100%; 
     background-color: lightcoral;
     padding: 5px;
     color: #333;
@@ -21,10 +20,16 @@
     text-align: center;
 }
 
+.gif-container {
+    display: inline-block;
+    background-color: transparent;
+}
+
 .gif {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* 保持比例并填充 */
+    object-fit: cover;
+    background-color: transparent;
 }
 
 .button-container {
