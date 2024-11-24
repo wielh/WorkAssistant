@@ -82,6 +82,7 @@ export interface MemoOperatorInterface {
 export enum FileType {
   WAV = "wav",
   MP4 = "mp4",
+  MP3 = "mp3",
 }
 
 export function getFileTypeRole(fileName: string): FileType| null {
