@@ -63,7 +63,6 @@
     const musicRootDirButton = document.getElementById('musicRootDirSubmit');
     const musicRootDirInput = document.getElementById('musicRootDirInput');
     
-    let pause = false
     let musicMap = new Map();
     let musicArray = []
     let currentTrackIndex = 0
@@ -100,11 +99,11 @@
 
     async function nextSong() {
       await sleep(100);
-      if (audioPlayerState == "loop") {
+      if (audioPlayerState === "loop") {
         currentTrackIndex = (currentTrackIndex + 1) % musicArray.length;
         loadTrack(currentTrackIndex);
-      } else if (audioPlayerState == "random") {
-        currentTrackIndex =  Math.floor(Math.random() * musicArray.length());
+      } else if (audioPlayerState === "random") {
+        currentTrackIndex =  Math.floor(Math.random() * musicArray.length);
         loadTrack(currentTrackIndex)
       }
     }
@@ -117,13 +116,15 @@
       volumeValue.textContent = Math.round(volume * 100) + "%";
     });
 
+    function isAudioPlaying(audioElement) {
+      return !audioElement.paused && !audioElement.ended && audioElement.readyState > 2;
+    }
+
     playPauseButton.addEventListener('click', () => {
-      if (pause) {
-        pause = false
+      if (!isAudioPlaying(audioPlayer)) {
         audioPlayer.play()
         playPauseButton.textContent = "pause"
       } else {
-        pause = true
         audioPlayer.pause()
         playPauseButton.textContent = "play"
       }
@@ -133,16 +134,16 @@
       audioPlayer.pause()
       audioPlayerState = "loop"
       audioPlayer.currentTime = 0;
+      pasue = false
       nextSong()
-      audioPlayer.play()
     });
 
     toggleRandomButton.addEventListener('click', () => {
       audioPlayer.pause()
       audioPlayerState = "random"
       audioPlayer.currentTime = 0;
+      pasue = false
       nextSong()
-      audioPlayer.play()
     });
 
     musicRootDirButton.addEventListener('click', async () => {

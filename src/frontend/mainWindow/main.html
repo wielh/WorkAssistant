@@ -9,10 +9,10 @@
 <body>
   <div class="titlebar"></div>
   <div class="gif-container">
-    <img class="gif" id="gifDisplay" alt="Draggable GIF" height="300">
+    <img class="gif" id="gifDisplay" alt="Draggable GIF" height="300" onclick="toggleDiv()">
   </div>
 
-  <div class="button-container">
+  <div class="button-container" id="button-container">
     <button id="openDailyEventButton">每日例行</button>
     <button id="openEventButton">行事曆</button>
     <button id="openMemoButton">備忘錄</button>
@@ -21,6 +21,15 @@
   </div>
 
   <script>
+    function toggleDiv() {
+      const div = document.getElementById("button-container");
+      if (div.style.display === "none") {
+        div.style.display = "block"; // 顯示
+      } else {
+        div.style.display = "none"; // 隱藏
+      }
+    }
+
     async function updateGif() {
       const now = new Date();
       const min = now.getMinutes();
