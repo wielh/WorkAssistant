@@ -36,7 +36,7 @@ export class MusicOperator implements MusicOperatorInterface {
             return true
         } else {
             const s = settings[0]
-            const r = await this.repo.update(s.id, { rootFolder: s.rootFolder })
+            const r = await this.repo.update(s.id, { rootFolder: fullPath })
             this.rootDir = p
             return (r.affected!=undefined && r.affected>0)
         }
