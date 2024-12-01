@@ -28,9 +28,9 @@ export var
 
 export const AppDataSource = new DataSource({
     type: 'sqlite',
-    database: 'database.vpet',
+    database: 'database.sqlite',
     entities: [Memo, Event, DailyEvent, WeeklySchedule, MusicSetting],
-    synchronize: true, 
+    synchronize: false, 
 });
 
 export async function InitDataSource() {

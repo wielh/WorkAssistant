@@ -15,14 +15,12 @@ export class MusicOperator implements MusicOperatorInterface {
     }
 
     static async new(): Promise<MusicOperator> {
-       const rootDir = this.getDefaultFolder()
-       return new MusicOperator(rootDir)
+       const rootDir = ''
+       const answer = new MusicOperator(rootDir)
+       await answer.GetRootFolder()
+       return answer
     }
     
-    static getDefaultFolder(): string {
-        return path.join(process.cwd(), "music")
-    }
-
     public async SetRootFolder(p:string): Promise<boolean> {
         const fullPath = path.resolve(p); 
         if(!fs.statSync(fullPath).isDirectory()) {
@@ -51,7 +49,7 @@ export class MusicOperator implements MusicOperatorInterface {
         if (settings.length > 0) {
            return settings[0].rootFolder
         } else {
-            return MusicOperator.getDefaultFolder()
+            return path.join(process.cwd(), "music")
         }
     }
 
