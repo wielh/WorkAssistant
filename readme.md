@@ -27,8 +27,8 @@
 ## Electron 介紹
    1.  簡介: Electron 是一個用於建立跨平台桌面應用程式的開源框架，由 GitHub 開發和維護。它基於 Node.js 和 Chromium，可以讓開發者使用 HTML、CSS 和 JavaScript 建立現代的桌面應用程式。
    2.  Electron 應用由兩個主要部分組成：
-       - 主程序（Main Process）：負責管理應用的生命週期（啟動、退出）和系統互動。執行 Node.js 腳本，支援檔案系統存取、視窗管理等。
-       - 渲染進程（Renderer Process）：類似瀏覽器的標籤頁，負責渲染使用者介面。每個視窗都有獨立的渲染進程，可以運行 Web 技術（HTML、CSS、JS）。
+      - 主程序（Main Process）：負責管理應用的生命週期（啟動、退出）和系統互動。執行 Node.js 腳本，支援檔案系統存取、視窗管理等。
+      - 渲染進程（Renderer Process）：類似瀏覽器的標籤頁，負責渲染使用者介面。每個視窗都有獨立的渲染進程，可以運行 Web 技術（HTML、CSS、JS）。
    3. Electron 提供了两个模块用于实现 IPC：
       - ipcMain：用于主进程接收来自渲染进程的消息。
       - ipcRenderer：用于渲染进程发送或接收消息。
@@ -36,10 +36,9 @@
       
 ## 待改進的部分
    1. 功能:
-       1. 根據時段，播放不同的 GIF
-       2. 精靈新增對話框
-       3. 串接 chatGPT API 或本地部屬
+      + 根據時段，播放不同的 GIF
+      + 精靈新增對話框
+      + 串接 chatGPT API 或本地部屬
    2. 前端:
-       1. 用 ts 重寫在各個 html 的 script
-       2. 為 html 的各個元件新增自訂樣式
-       3. 用 vue，react 或 angular 當作前端框架
+      + 為 html 的各個元件新增自訂樣式
+      + 用 vue，react 或 angular 當作前端框架
