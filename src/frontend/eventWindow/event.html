@@ -85,6 +85,13 @@
     const thisWeekRowMap = new Map();
     const allMap = new Map();
 
+    function createSection(id) {
+      const section = document.createElement('section')
+      section.classList.add("resume-section")
+      section.id = id
+      return section
+    }
+
     async function deleteHistory() {
       if (!window.api) {
         console.error('Electron API not available');
@@ -105,20 +112,22 @@
         const regex = /^\d{4}-\d{2}-\d{2}$/;
         if (!regex.test(startDate.textContent)) {
           alert("開始日期格式不正確，應該是 YYYY-MM-DD");
+          createWindow()
           return;
         }
 
         if (!regex.test(endDate.textContent)) {
           alert("結束日期格式不正確，應該是 YYYY-MM-DD");
+          createWindow()
           return;
         }
 
         try {
           await window.api.InsertOne(title.textContent, content.textContent, new Date(startDate.textContent), new Date(endDate.textContent))
-          window.close();
-          window.api.Reload();
+          createWindow()
         } catch (error) {
           console.error('Error saving data:', error);
+          createWindow()
           alert('保存数据失败，请重试');
         }
       }
@@ -216,19 +225,16 @@
       container.appendChild(li)
     }
 
-    function createSection(events, today, index, navbarRoot, rootContainter) {
+    function createMiddleSections(events, today, index, navbarRoot, rootContainter) {
       const nextDay = new Date(today);
       nextDay.setDate(today.getDate() + index);
       const formattedDate = nextDay.toISOString().split('T')[0];
 
-      const section = document.createElement('section')
+      const section = createSection(formattedDate)
       const title = document.createElement('div')
       title.textContent =`${formattedDate}`
       title.classList.add('title-style1')
       section.appendChild(title)
-
-      section.id = formattedDate
-      section.classList.add("resume-section")
       createNavbaril(formattedDate,navbarRoot)
     
       const table = document.createElement('table')
@@ -249,10 +255,9 @@
     }
 
     function createFirstSection(container) {
-      const section = document.createElement('section')
+
       const allId = "Create"
-      section.id = allId
-      section.classList.add("resume-section")
+      const section = createSection(allId)
 
       const title = document.createElement('div')
       title.textContent = "創造新事件"
@@ -365,13 +370,13 @@
       }
 
       const container = document.getElementById('tableContainerW');
-      if (container == null) {
+      if (!container) {
         return
       }
       container.innerHTML = ''
 
       const navbarRoot = document.getElementById("navbarRoot")
-      if (navbarRoot == null) {
+      if (!navbarRoot) {
         return
       }
       navbarRoot.innerHTML = ''
@@ -384,7 +389,7 @@
       let index = 0
       const today = new Date();
       eventsInAWeek.forEach((events) => {
-        createSection(events, today, index, navbarRoot, container)
+        createMiddleSections(events, today, index, navbarRoot, container)
         index++
       })
 

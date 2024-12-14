@@ -107,23 +107,27 @@
       }
     }
 
-    function newInsertEvent(WeekdaySelect,activitySelect,startTimeCell,endTimeCell) {
+    function newInsertEvent(WeekdaySelect,activitySelect,startTimeCell, endTimeCell) {
       const event = async () => {
-        const regex = /^\d{4}-\d{2}-\d{2}$/;
+        const regex = /^\d{2}:\d{2}$/;
         if (!regex.test(startTimeCell.textContent)) {
           alert("開始時間格式不正確，應該是 HH:MM");
+          createWindow()
           return;
         }
 
         if (!regex.test(endTimeCell.textContent)) {
           alert("結束時間格式不正確，應該是 HH:MM");
+          createWindow()
           return;
         }
+
         const memo = await window.api.InsertOne(WeekdaySelect.value, activitySelect.value, startTimeCell.textContent, endTimeCell.textContent);
         if(memo) {
           createWindow()
         } else {
-          alert("創造新作息失敗")
+          console.log(document.querySelector('td').getAttribute('contenteditable'));
+          return;
         }
       }
 
@@ -242,7 +246,8 @@
       const insertButton = document.createElement('button');
       insertButton.textContent = "insert";
       insertButton.classList.add('responsive-button')
-      insertButton.addEventListener('click', newInsertEvent(WeekdaySelect,activitySelect,startTimeCell,endTimeCell));
+      insertButton.addEventListener('click', newInsertEvent(
+        WeekdaySelect, activitySelect, startTimeCell ,endTimeCell));
       insertCell.appendChild(insertButton);
       newRow.appendChild(insertCell);
       
@@ -314,13 +319,13 @@
       }
 
       const container = document.getElementById('tableContainerW');
-      if (container == null) {
+      if (!container) {
         return
       }
       container.innerHTML = ''
 
       const navbarRoot = document.getElementById("navbarRoot")
-      if (navbarRoot == null) {
+      if (!navbarRoot) {
         return
       }
       navbarRoot.innerHTML = ''

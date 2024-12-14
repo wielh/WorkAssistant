@@ -255,13 +255,13 @@
       }
 
       const container = document.getElementById('tableContainerW');
-      if (container == null) {
+      if (!container) {
         return
       }
       container.innerHTML = ''
 
       const navbarRoot = document.getElementById("navbarRoot")
-      if (navbarRoot == null) {
+      if (!navbarRoot) {
         return
       }
       navbarRoot.innerHTML = ''
