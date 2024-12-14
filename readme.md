@@ -34,6 +34,12 @@
       - ipcRenderer：用于渲染进程发送或接收消息。
       - 此外，Electron 提供了 contextBridge 用于安全地暴露 IPC 通信到渲染进程。
       
+## 效果展示
+
+![主視窗](img/main.gif)
+
+![行程視窗](img/schedule.gif)
+
 ## 待改進的部分
    1. 功能:
       + 根據時段，播放不同的 GIF
