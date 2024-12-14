@@ -8,7 +8,6 @@ import { createScheduleWindow } from './weeklyScheduleWindow/schedule'
 export enum ipcWindow {
     dailyEventWindow = "dailyEventWindow",
     eventWindow = "eventWindow",
-    eventInputWindow = "eventInputWindow",
     eventWindowReload = "eventWindowReload",
     memoWindow = "memoWindow",
     musicWindow = "musicWindow",
@@ -22,10 +21,6 @@ export function frondendInit(){
 
     ipcMain.on(ipcWindow.eventWindow, () => {
         createEventWindow();
-    });
-
-    ipcMain.on(ipcWindow.eventInputWindow, () => {
-        createInputWindow();
     });
 
     ipcMain.on(ipcWindow.eventWindowReload, () => {

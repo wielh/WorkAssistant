@@ -22,7 +22,7 @@ export function createEventWindow() {
   });
 
   win.loadFile(path.join(__dirname, 'event.html'));
-  //win.webContents.openDevTools();
+  win.webContents.openDevTools();
 }
 
 export function createInputWindow() {
@@ -32,8 +32,8 @@ export function createInputWindow() {
   }
 
   inputWindow = new BrowserWindow({
-    width: 400,
-    height: 300,
+    width: 1300,
+    height: 700,
     parent: win!,
     modal: true,
     show: false,

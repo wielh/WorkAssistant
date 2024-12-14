@@ -3,8 +3,8 @@ import * as path from "path"
 
 export function createScheduleWindow() {
   const controlWindow = new BrowserWindow({
-    width: 1000,
-    height: 500,
+    width: 1300,
+    height: 700,
     webPreferences: {
       preload: path.join( __dirname , '/preload.js'),
       contextIsolation: true,

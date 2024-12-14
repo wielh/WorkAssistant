@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../common.css">
+  <link rel="stylesheet" href="../common-export.css">
   <title>備忘錄</title>
   <style>
 
@@ -16,40 +17,35 @@
     }
     
     .table-width1 th:nth-child(1), .table-width1 td:nth-child(1) {
-      width: 20%;
+      width: 13%;
     }
     .table-width1 th:nth-child(2), .table-width1 td:nth-child(2) {
-      width: 20%;
+      width: 14%;
     }
     .table-width1 th:nth-child(3), .table-width1 td:nth-child(3) {
-      width: 20%;
+      width: 13%;
     }
     .table-width1 th:nth-child(4), .table-width1 td:nth-child(4) {
-      width: 20%;
+      width: 30%;
     }
-    .table-width1 th:nth-child(5), .table-width1 td:nth-child(4) {
-      width: 20%;
-    }
-
-    .table-width2 th, .width2 td {
-      padding: 8px;
-      text-align: left;
+    .table-width1 th:nth-child(5), .table-width1 td:nth-child(5) {
+      width: 30%;
     }
 
     .table-width2 th:nth-child(1), .table-width2 td:nth-child(1) {
-      width: 20%;
+      width: 17%;
     }
     .table-width2 th:nth-child(2), .table-width2 td:nth-child(2) {
-      width: 20%;
+      width: 17%;
     }
     .table-style2 th:nth-child(3), .table-width2 td:nth-child(3) {
-      width: 20%;
+      width: 25%;
     }
     .table-width2 th:nth-child(4), .table-width2 td:nth-child(4) {
-      width: 20%;
+      width: 16%;
     }
-    .table-width2 th:nth-child(5), .table-width2 td:nth-child(4) {
-      width: 20%;
+    .table-width2 th:nth-child(5), .table-width2 td:nth-child(5) {
+      width: 25%;
     }
 
     #create-button {
@@ -68,7 +64,14 @@
   </style>
 </head>
 <body class="body1">
-  <h2 style="text-align: center;">每周作息</h2>
+  <!-- imported Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav" id="navbarRoot">
+        </ul>
+    </div>
+  </nav>
   <div id="tableContainerW"></div>
 
   <script type="module">
@@ -106,10 +109,21 @@
 
     function newInsertEvent(WeekdaySelect,activitySelect,startTimeCell,endTimeCell) {
       const event = async () => {
+        const regex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!regex.test(startTimeCell.textContent)) {
+          alert("開始時間格式不正確，應該是 HH:MM");
+          return;
+        }
+
+        if (!regex.test(endTimeCell.textContent)) {
+          alert("結束時間格式不正確，應該是 HH:MM");
+          return;
+        }
         const memo = await window.api.InsertOne(WeekdaySelect.value, activitySelect.value, startTimeCell.textContent, endTimeCell.textContent);
-        console.log(memo)
         if(memo) {
           createWindow()
+        } else {
+          alert("創造新作息失敗")
         }
       }
 
@@ -143,6 +157,7 @@
       const updateCell = document.createElement('td');
       const updateButton = document.createElement('button');
       updateButton.textContent = "update";
+      updateButton.classList.add('responsive-button')
       updateButton.addEventListener('click', newUpdateEvent(row, activitySelect, startTimeCell, endTimeCell));
       updateCell.appendChild(updateButton);
       newRow.appendChild(updateCell);
@@ -150,6 +165,7 @@
       const deleteCell = document.createElement('td');
       const deleteButton = document.createElement('button');
       deleteButton.textContent = "delete";
+      deleteButton.classList.add('responsive-button')
       deleteButton.addEventListener('click', async () => {
         const success = await window.api.Delete(row.id);
         if(success) {
@@ -162,19 +178,33 @@
       container.appendChild(newRow);
     }
 
-    function createInsertRow(container) {
-      const titleElement = document.createElement('div')
-      titleElement.textContent =`===================<Insert Weekly Schedule>===================`
-      titleElement.style.display = 'flex';           
-      titleElement.style.justifyContent = 'center';  
-      titleElement.style.alignItems = 'center';      
-      titleElement.style.fontSize = '18px';
-      titleElement.style.marginBottom = '20px';
-      container.appendChild(titleElement)
+    function createInsertRow(container, navbarRoot) {
+      const section = document.createElement('section')
+      const id = "insertRow"
+      section.id = id
+      section.classList.add("resume-section")
+
+      const titleElement = document.createElement('p')
+      titleElement.textContent = `插入新事件`
+      titleElement.classList.add('title-style1')
+      section.appendChild(titleElement)
+      createNavbaril(id, navbarRoot)
 
       const table = document.createElement('table')
       table.classList.add('table-style1')
       table.classList.add('table-width2')
+
+      const thead = document.createElement("thead");
+      const row = document.createElement("tr");
+      const headers = ["開始時間", "結束時間","星期", "狀態", "新增"];
+      headers.forEach(headerText => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        row.appendChild(th);
+      });
+      thead.appendChild(row)
+      table.appendChild(thead)
+
       const newRow = document.createElement('tr');
       const startTimeCell = document.createElement('td');
       startTimeCell.textContent = '(HH:MM)';
@@ -211,13 +241,70 @@
       const insertCell = document.createElement('td');
       const insertButton = document.createElement('button');
       insertButton.textContent = "insert";
+      insertButton.classList.add('responsive-button')
       insertButton.addEventListener('click', newInsertEvent(WeekdaySelect,activitySelect,startTimeCell,endTimeCell));
       insertCell.appendChild(insertButton);
       newRow.appendChild(insertCell);
       
       table.appendChild(newRow);
       addTableChangedLinster(table)
-      container.appendChild(table)
+      section.append(table)
+      container.appendChild(section)
+    }
+
+    function createThead(container) {
+      const thead = document.createElement("thead");
+      const row = document.createElement("tr");
+
+      const headers = ["開始時間", "結束時間","狀態", "更新", "刪除"];
+      headers.forEach(headerText => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        row.appendChild(th);
+      });
+      thead.appendChild(row)
+      container.appendChild(thead)
+    }
+
+    function createNavbaril(text, container) {
+      const li = document.createElement('li')
+      li.classList.add("nav-item")
+      const href = document.createElement('a')
+      href.classList.add('nav-link', 'js-scroll-trigger')
+      href.target = "_self"; 
+      href.href = "#"+text
+      href.textContent = text
+      li.appendChild(href)
+      container.appendChild(li)
+    }
+
+    function createTable(scheduleArray, titleNumber, container, navbarRoot) {
+      if (scheduleArray.length == 0) {
+        return
+      }
+      
+      const title = WeekdayTypes[titleNumber].text
+      const section = document.createElement('section')
+      section.id = title
+      section.classList.add("resume-section")
+
+      const titleElement = document.createElement('p')
+      titleElement.textContent =`${title}` 
+      titleElement.classList.add('title-style1')
+      section.appendChild(titleElement)
+      createNavbaril(title, navbarRoot)
+     
+      const table = document.createElement('table')
+      table.classList.add('table-style1')
+      table.classList.add('table-width1')
+      createThead(table)
+      scheduleArray.forEach((schedule) => {
+        createRow(table, schedule)
+      })
+      addTableChangedLinster(table)
+      section.append(table)
+      section.style.marginBottom = '20px';
+      container.appendChild(section);
     }
 
     async function createWindow() {
@@ -232,30 +319,18 @@
       }
       container.innerHTML = ''
 
+      const navbarRoot = document.getElementById("navbarRoot")
+      if (navbarRoot == null) {
+        return
+      }
+      navbarRoot.innerHTML = ''
+
       const scheduleMap = await window.api.SelectAll();
       const fragment = document.createDocumentFragment();
-      createInsertRow(fragment)
+      createInsertRow(fragment, navbarRoot)
       
       scheduleMap.forEach((scheduleArray, title) => {
-        if (scheduleArray.length == 0) {
-          return
-        }
-        const titleElement = document.createElement('div')
-        titleElement.textContent =`===================${WeekdayTypes[scheduleArray[0].dayOfWeek].text}===================`
-        titleElement.classList.add('title-style1')
-        fragment.appendChild(titleElement)
-
-        const tableContainer = document.createElement('div')
-        const table = document.createElement('table')
-        table.classList.add('table-style1')
-        table.classList.add('table-width1')
-        scheduleArray.forEach((schedule) => {
-          createRow(table, schedule)
-        })
-        addTableChangedLinster(table)
-        tableContainer.append(table)
-        tableContainer.style.marginBottom = '20px';
-        fragment.appendChild(tableContainer);
+        createTable(scheduleArray, title, fragment, navbarRoot)
       })
       container.appendChild(fragment);
     }

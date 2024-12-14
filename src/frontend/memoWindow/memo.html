@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>備忘錄</title>
   <link rel="stylesheet" href="../common.css">
+  <link rel="stylesheet" href="../common-export.css">
   <style>
 
     .cell {
@@ -50,27 +51,19 @@
       width: 15%;
     }
 
-    #create-button {
-      justify-content: center;
-      width: 100%;
-      padding: 10px;
-      font-size: 18px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      display: block;
-      margin-top: 15px;
-    }
   </style>
 </head>
 <body class="body-style1">
   <h2 style="text-align: center;">備忘錄</h2>
+  <!-- imported Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav" id="navbarRoot">
+        </ul>
+    </div>
+  </nav>
   <div id="tableContainerW"></div>
-  <div id="buttonContainer">
-    <button id="create-button">新增行程</button>
-  </div>
 
   <script type="module">
 
@@ -118,6 +111,7 @@
 
       const updateCell = document.createElement('td');
       const updateButton = document.createElement('button');
+      updateButton.classList.add('responsive-button')
       updateButton.textContent = "update";
       updateButton.addEventListener('click', newUpdateEvent(row.id, subTitleCell, contentCell));
       updateCell.appendChild(updateButton);
@@ -125,6 +119,7 @@
 
       const deleteCell = document.createElement('td');
       const deleteButton = document.createElement('button');
+      deleteButton.classList.add('responsive-button')
       deleteButton.textContent = "delete";
       deleteButton.addEventListener('click', async () => {
         const success = await window.api.Delete(row.id);
@@ -138,16 +133,41 @@
       container.appendChild(newRow);
     }
 
-    function createInsertRow(container) {
+    function createInsertRow(container, navbarRoot) {
+      const section = document.createElement('section')
+      section.id = "創建新項目"
+      section.classList.add("resume-section")
 
       const titleElement = document.createElement('div')
-      titleElement.textContent =`===================<Insert Memo>===================`
+      titleElement.textContent =`新增條目`
       titleElement.classList.add('title-style1')
-      container.appendChild(titleElement)
+      section.appendChild(titleElement)
 
       const table = document.createElement('table')
       table.classList.add('table-style1')
       table.classList.add('table-width2')
+
+      const li = document.createElement('li')
+      li.classList.add("nav-item")
+      const href = document.createElement('a')
+      href.classList.add('nav-link', 'js-scroll-trigger')
+      href.target = "_self"; 
+      href.href = "#"+"創建新項目"
+      href.textContent = "創建新項目"
+      li.appendChild(href)
+      navbarRoot.appendChild(li)
+
+      const thead = document.createElement("thead");
+      const row = document.createElement("tr");
+      const headers = ["標題", "副標題", "詳細內容", "新增"];
+      headers.forEach(headerText => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        row.appendChild(th);
+      });
+      thead.appendChild(row)
+      table.appendChild(thead)
+
       const newRow = document.createElement('tr');
       const titleCell = document.createElement('td');
       titleCell.textContent = '(empty)';
@@ -166,13 +186,66 @@
 
       const insertCell = document.createElement('td');
       const insertButton = document.createElement('button');
+      insertButton.classList.add('responsive-button')
       insertButton.textContent = "insert";
       insertButton.addEventListener('click', newInsertEvent(titleCell, subTitleCell, contentCell));
       insertCell.appendChild(insertButton);
       newRow.appendChild(insertCell);
       table.appendChild(newRow);
       addTableChangedLinster(table)
-      container.appendChild(table)
+      section.appendChild(table)
+      container.appendChild(section)
+    }
+
+    function createThead(container) {
+      const thead = document.createElement("thead");
+      const row = document.createElement("tr");
+
+      const headers = ["副標題", "詳細內容", "更新", "刪除"];
+      headers.forEach(headerText => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        row.appendChild(th);
+      });
+
+      thead.appendChild(row)
+      container.appendChild(thead)
+    }
+
+    function createNavbaril(text, container) {
+      const li = document.createElement('li')
+      li.classList.add("nav-item")
+      const href = document.createElement('a')
+      href.classList.add('nav-link', 'js-scroll-trigger')
+      href.target = "_self"; 
+      href.href = "#"+text
+      href.textContent = text
+      li.appendChild(href)
+      container.appendChild(li)
+    }
+
+    function createTable(memoArray, title, container, navbarRoot) {
+      const section= document.createElement('section')
+      section.id = title
+      section.classList.add("resume-section")
+     
+      createNavbaril(title, navbarRoot)
+      const titleElement = document.createElement('p')
+      titleElement.textContent = `主題:${title}`
+      titleElement.classList.add('title-style1')
+      section.appendChild(titleElement)
+
+      const table = document.createElement('table')
+      table.classList.add("table-style1")
+      table.classList.add("table-width1")
+      createThead(table)
+      memoArray.forEach((memo) => {
+        createRow(table, memo)
+      })
+      addTableChangedLinster(table)
+      section.append(table)
+      section.style.marginBottom = '20px';
+      container.appendChild(section);
     }
 
     async function createWindow() {
@@ -187,35 +260,23 @@
       }
       container.innerHTML = ''
 
+      const navbarRoot = document.getElementById("navbarRoot")
+      if (navbarRoot == null) {
+        return
+      }
+      navbarRoot.innerHTML = ''
+
       const memoMap = await window.api.SelectAll();
       const fragment = document.createDocumentFragment();
-      createInsertRow(fragment)
+      createInsertRow(fragment, navbarRoot)
       memoMap.forEach((memoArray, title) => {
-        const titleElement = document.createElement('div')
-        titleElement.textContent =`===================${title}===================`
-        titleElement.style.display = 'flex';           
-        titleElement.style.justifyContent = 'center';  
-        titleElement.style.alignItems = 'center';      
-        titleElement.style.fontSize = '18px';
-        titleElement.style.marginBottom = '20px';
-        fragment.appendChild(titleElement)
-
-        const tableContainer = document.createElement('div')
-        const table = document.createElement('table')
-        table.classList.add("table-style1")
-        table.classList.add("table-width1")
-        memoArray.forEach((memo) => {
-          createRow(table, memo)
-        })
-        addTableChangedLinster(table)
-        tableContainer.append(table)
-        tableContainer.style.marginBottom = '20px';
-        fragment.appendChild(tableContainer);
+        createTable(memoArray, title, fragment, navbarRoot)
       })
       container.appendChild(fragment);
     }
   
     createWindow()
+
   </script>
 
 </body>

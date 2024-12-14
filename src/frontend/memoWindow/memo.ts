@@ -8,8 +8,8 @@ export function createMemoWindow() {
     return
   }
   memoWindow = new BrowserWindow({
-    width: 900,
-    height: 450,
+    width: 1200,
+    height: 500,
     webPreferences:{
       nodeIntegration: false,
       contextIsolation: true,
@@ -19,5 +19,4 @@ export function createMemoWindow() {
   });
 
   memoWindow.loadFile(path.join(__dirname, 'memo.html'));
-  //memoWindow.webContents.openDevTools();
 }

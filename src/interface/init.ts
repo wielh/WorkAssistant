@@ -30,11 +30,11 @@ export const AppDataSource = new DataSource({
     type: 'sqlite',
     database: 'database.sqlite',
     entities: [Memo, Event, DailyEvent, WeeklySchedule, MusicSetting],
-    synchronize: false, 
+    synchronize: true, 
 });
 
 export async function InitDataSource() {
-    await AppDataSource.initialize();
+    await AppDataSource.initialize()
     memoOI = new MemoOperator()
     eventOI = new EventOperator()
     dailyEventOI = new DailyEventOperator()

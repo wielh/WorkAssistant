@@ -9,8 +9,8 @@ export function createControlWindow() {
     return
   }
   controlWindow = new BrowserWindow({
-    width: 600,
-    height: 400,
+    width: 800,
+    height: 500,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

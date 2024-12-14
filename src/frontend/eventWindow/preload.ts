@@ -12,6 +12,5 @@ contextBridge.exposeInMainWorld('api', {
     SelectThisWeek: () => ipcRenderer.invoke(ipcName.Event.SelectThisWeek),
     Update: (id: number, title: string, content: string, startDate: Date, endDate: Date) => ipcRenderer.invoke(ipcName.Event.Update, id, title, content, startDate, endDate),
 
-    OpenInputWindow: () => ipcRenderer.send(ipcWindow.eventInputWindow),
     Reload: () => ipcRenderer.send(ipcWindow.eventWindowReload),
 });

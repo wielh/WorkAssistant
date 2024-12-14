@@ -1,15 +1,15 @@
 import { BrowserWindow } from 'electron'
 import path from 'path';
 
-let win: BrowserWindow | null;
+let win: BrowserWindow;
 
 export function createDailyEventWindow() {
-  if (win != null) {
+  if (win != null && !win.isDestroyed()) {
     win.focus(); 
     return
   }
   win = new BrowserWindow({
-    width: 900,
+    width: 1300,
     height: 450,
     webPreferences:{
       nodeIntegration: false,
@@ -20,8 +20,5 @@ export function createDailyEventWindow() {
   });
 
   win.loadFile(path.join(__dirname, 'dailyEvent.html'));
-  win.on('closed', () => {
-    win = null;
-  })
  // win.webContents.openDevTools();
 }

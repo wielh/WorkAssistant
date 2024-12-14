@@ -133,6 +133,7 @@
 
       const updateCell = document.createElement('td');
       const updateButton = document.createElement('button');
+      updateButton.classList.add('responsive-button')
       updateButton.textContent = "update";
       updateButton.addEventListener('click', newUpdateEvent(row.id, titleCell, contentCell));
       updateCell.appendChild(updateButton);
@@ -140,6 +141,7 @@
 
       const deleteCell = document.createElement('td');
       const deleteButton = document.createElement('button');
+      deleteButton.classList.add('responsive-button')
       deleteButton.textContent = "delete";
       deleteButton.addEventListener('click', async () => {
         const success = await window.api.Delete(row.id);
@@ -153,25 +155,36 @@
       container.appendChild(newRow);
     }
 
+    function createThead(container) {
+      const thead = document.createElement("thead");
+      const row = document.createElement("tr");
+
+      const headers = ["標題", "詳細內容", "更新", "刪除"];
+      headers.forEach(headerText => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        row.appendChild(th);
+      });
+
+      thead.appendChild(row)
+      container.appendChild(thead)
+    }
+
     async function createWindow() {
       if (!window.api) {
         console.error('Electron API not available');
         return
       }
 
-      const container = document.getElementById('tableBody');
-      if (container == null) {
-        return
-      }
-      
       const DailyEvents = await window.api.SelectAll();
       const fragment = document.createDocumentFragment();
+      const table = document.getElementById('table');
+      createThead(table)
       DailyEvents.forEach((row) => {
         createRow(fragment, row)
       })
-      container.appendChild(fragment);
-      
-      const table = document.getElementById('table');
+
+      table.appendChild(fragment)
       table.addEventListener('input', (event) => {
         const cell = event.target;
         if (cell.tagName === 'TD' && cell.getAttribute('contenteditable') === 'true') {
