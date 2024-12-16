@@ -107,7 +107,8 @@ export class Music {
   format !:FileType
 }
 
-@Entity("music")
+//@Entity("music")
+@Entity()
 export class MusicSetting {
 
   @PrimaryGeneratedColumn()

@@ -53,9 +53,8 @@ export class EventOperator implements EventOperatorInterface {
         let answer: Event[][] = []
         let today = new Date()
         for (let i = 0; i < 7; i++) {
-            const time = today
-            time.setDate(time.getDate() + i)
-            answer.push(await this.SelectSpecificDay(time))
+            today.setDate(today.getDate() + 1)
+            answer.push(await this.SelectSpecificDay(today))
         }
         return answer
     }
